@@ -1,11 +1,13 @@
 ifeq ($(ruby),)
   ifeq ($(platform),windows)
+    pkg_check = $(if $(shell pkg-config $1 && echo 1),$2)
     ruby += video.direct3d video.gdi
     ifeq ($(arch),amd64)
       ruby += video.wgl
     endif
     ruby += audio.wasapi audio.xaudio2 audio.directsound audio.waveout #audio.asio
     ruby += input.windows
+    ruby += $(call pkg_check,sdl2,input.sdl)
   else ifeq ($(platform),macos)
     ruby += video.cgl
     ruby += audio.openal
@@ -61,8 +63,11 @@ ruby.options += $(if $(findstring audio.pulseaudiosimple,$(ruby)),-lpulse-simple
 ruby.options += $(if $(findstring audio.wasapi,$(ruby)),-lavrt -luuid)
 ruby.options += $(if $(findstring audio.waveout,$(ruby)),-lwinmm)
 ruby.options += $(if $(findstring audio.xaudio2,$(ruby)),-lole32)
-
-ruby.options += $(if $(findstring input.sdl,$(ruby)),$(shell sdl2-config --libs))
+ifeq ($(platform),windows)
+  ruby.options += $(if $(findstring input.sdl,$(ruby)),$(shell sdl2-config --static-libs))
+else
+  ruby.options += $(if $(findstring input.sdl,$(ruby)),$(shell sdl2-config --libs))
+endif
 ruby.options += $(if $(findstring input.udev,$(ruby)),-ludev)
 ruby.options += $(if $(findstring input.uhid,$(ruby)),-lusbhid)
 ruby.options += $(if $(findstring input.windows,$(ruby)),-ldinput8 -ldxguid)

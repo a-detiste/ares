@@ -58,7 +58,7 @@ jobs:
       with:
         msystem: ${{ matrix.platform.msystem }}
         update: true
-        install: make mingw-w64-${{ matrix.platform.msys-env }}-toolchain
+        install: make mingw-w64-${{ matrix.platform.msys-env }}-toolchain mingw-w64-${{ matrix.platform.msys-env }}-SDL2
     - name: Install MSYS2 ARM64 Dependencies
       if: matrix.platform.name == 'windows-arm64'
       run: | # enable clang arm64 package source, refresh package database, and install clang package
@@ -91,7 +91,7 @@ jobs:
     - name: Install macOS Dependencies
       if: runner.os == 'macOS'
       run: |
-        brew install make ninja
+        brew install make ninja sdl2
         echo "MAKE=gmake" >> $GITHUB_ENV
         pushd thirdparty/MoltenVK
         ./build-moltenvk.sh
